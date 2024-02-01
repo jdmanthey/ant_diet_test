@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --chdir=./
+#SBATCH --job-name=diet2
+#SBATCH --partition nocona
+#SBATCH --nodes=1 --ntasks=64
+#SBATCH --time=48:00:00
+#SBATCH --mem=250G
+#SBATCH --array=1-1
+
+source activate blast 
+
+# define main working directory
+workdir=/lustre/scratch/jmanthey/01_ant_diet_test
+
+# base name of files for step 2
+basename_array=$( head -n${SLURM_ARRAY_TASK_ID} ${workdir}/basenames1.txt | tail -n1 )
+
+# BLAST
+blastn -query ${workdir}/05_fasta/${basename_array}.fasta -db /lustre/research/phillips/rep_euk_genomes/db/ref_euk_rep_genomes -max_target_seqs 100 -evalue 0.00001 -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore sscinames scomnames" >  ${workdir}/05_fasta/${basename_array}.blast
